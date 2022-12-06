@@ -13,7 +13,7 @@
     'data': [
         'views/tfs_tree_button_confirm.xml',
     ],
-    'images': [],
+    'images': ['static/img.png'],
     'qweb': [],
     'license': 'LGPL-3',
     'installable': True,
