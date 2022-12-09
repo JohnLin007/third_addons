@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_base_province,base.province,model_base_province,,1,1,1,1
+access_base_city,base.city,model_base_city,,1,1,1,1
+access_base_county,base.county,model_base_county,,1,1,1,1
+
