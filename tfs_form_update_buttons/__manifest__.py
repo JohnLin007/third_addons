@@ -20,7 +20,7 @@
     'data': [
         'views/tfs_form_update_buttons.xml',
     ],
-    'images': ['static/img.gif'],
+    'images': ['static/img.png'],
     'qweb': [],
     'license': 'LGPL-3',
     'installable': True,
