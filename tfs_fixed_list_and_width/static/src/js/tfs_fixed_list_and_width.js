@@ -27,6 +27,9 @@ odoo.define('tfs_fixed_list_and_width.fields_width', function (require) {
                         maxWidth = 92;
                         thresholdReached = true;
                     }
+                    if (th.style.colspan){
+                        maxWidth = maxWidth * th.style.colspan/1.5
+                    }
                     th.style.maxWidth = `${maxWidth}px`;
                     columnWidths[index] = maxWidth;
                 });
@@ -84,7 +87,7 @@ odoo.define('tfs_fixed_list_and_width.fields_width', function (require) {
             const fixedWidths = {
                 boolean: '70px',
                 date: '120px',
-                datetime: '199px',
+                datetime: '210px',
                 float: '92px',
                 integer: '74px',
                 monetary: '104px',
@@ -95,7 +98,96 @@ odoo.define('tfs_fixed_list_and_width.fields_width', function (require) {
             }
             return fixedWidths[type] || '1';
         },
+
+        _freezeColumnWidths: function () {
+            if (!this.columnWidths && this.el.offsetParent === null) {
+                // there is no record nor widths to restore or the list is not visible
+                // -> don't force column's widths w.r.t. their label
+                return;
+            }
+            const thElements = [...this.el.querySelectorAll('table thead th')];
+            if (!thElements.length) {
+                return;
+            }
+            const table = this.el.getElementsByClassName('o_list_table')[0];
+            let columnWidths = this.columnWidths;
+
+            if (!columnWidths || !columnWidths.length) { // no column widths to restore
+                // Set table layout auto and remove inline style to make sure that css
+                // rules apply (e.g. fixed width of record selector)
+                table.style.tableLayout = 'auto';
+
+                thElements.forEach(th => {
+                    th.style.width = null;
+                    th.style.maxWidth = null;
+                });
+
+                // Resets the default widths computation now that the table is visible.
+                this._computeDefaultWidths();
+
+                // Squeeze the table by applying a max-width on largest columns to
+                // ensure that it doesn't overflow
+                columnWidths = this._squeezeTable();
+            }
+
+            thElements.forEach((th, index) => {
+                // Width already set by default relative width computation
+                if (!th.style.width) {
+                    if (!columnWidths[index]){
+                        th.style.width =th.style.minWidth;
+                    }else{
+                        th.style.width = `${columnWidths[index]}px`;
+                    }
+                }
+            });
+
+            // Set the table layout to fixed
+            table.style.tableLayout = 'fixed';
+        },
+
+        _computeDefaultWidths: function () {
+            const isListEmpty = !this._hasVisibleRecords(this.state);
+            const relativeWidths = [];
+            this.columns.forEach(column => {
+                const th = this._getColumnHeader(column);
+                if (th.offsetParent === null) {
+                    relativeWidths.push(false);
+                } else {
+                    const width = this._getColumnWidth(column);
+                    if (width.match(/[a-zA-Z]/)) { // absolute width with measure unit (e.g. 100px)
+                        if (isListEmpty) {
+                            th.style.width = width;
+                        } else {
+                            // If there are records, we force a min-width for fields with an absolute
+                            // width to ensure a correct rendering in edition
+                            th.style.minWidth = width;
+                        }
+                        relativeWidths.push(false);
+                    } else { // relative width expressed as a weight (e.g. 1.5)
+                        relativeWidths.push(parseFloat(width, 10));
+                    }
+                }
+            });
+
+            // Assignation of relative widths
+            if (isListEmpty) {
+                const totalWidth = this._getColumnsTotalWidth(relativeWidths);
+                for (let i in this.columns) {
+                    if (relativeWidths[i]) {
+                        const th = this._getColumnHeader(this.columns[i]);
+    //                    th.style.width = (relativeWidths[i] / totalWidth * 100) + '%';
+                        th.style.width = '100px';
+                    }
+                }
+                // Manualy assigns trash icon header width since it's not in the columns
+                const trashHeader = this.el.getElementsByClassName('o_list_record_remove_header')[0];
+                if (trashHeader) {
+                    trashHeader.style.width = '32px';
+                }
+            }
+        },
     });
+
 
 
 });
