@@ -8,22 +8,24 @@ odoo.define('tfs_tree_double_header.double_header', function (require) {
         _renderHeader: function () {
             var log;
             let note;
+            var $thead;
             for (note in this.columns){
                 const attrs = this.columns[note].attrs;
                 if (attrs.options){
-                    var options = eval("(" + attrs.options + ")")
+                    var options = eval("(" + attrs.options.replace(/True/g,true).replace(/False/g,false) + ")")
                     if (options.colspan > 0){
                         log = true;
                     }
                 }
             }
             var $tr = $('<tr>')
+
             if (!log){
                 $tr.append(_.map(this.columns, this._renderHeaderCell.bind(this)));
                 if (this.hasSelectors) {
                     $tr.prepend(this._renderSelector('th'));
                 }
-                return $('<thead>').append($tr);
+                $thead = $('<thead>').append($tr);
             }else{
                 var $row = $('<tr>')
                 var row_num = 0;
@@ -33,7 +35,7 @@ odoo.define('tfs_tree_double_header.double_header', function (require) {
                     var th = this._renderHeaderCell(this.columns[note])
                     const attrs = this.columns[note].attrs;
                     if (attrs.options){
-                        var options = eval("(" + attrs.options + ")")
+                        var options = eval("(" + attrs.options.replace(/True/g,true).replace(/False/g,false) + ")")
                         if (options.colspan > 0){
                             row_num = options.colspan;
                             colspan = options.colspan;
@@ -62,8 +64,12 @@ odoo.define('tfs_tree_double_header.double_header', function (require) {
                     first_th[0].style['vertical-align'] = "inherit";
                     $row.prepend(first_th);
                 }
-                return $('<thead>').append($row).append($tr);
+                $thead = $('<thead>').append($row).append($tr);
             }
+            if (this.addTrashIcon) {
+                $thead.find('tr').append($('<th>', {class: 'o_list_record_remove_header'}));
+            }
+            return $thead
 
         },
     })

@@ -3,6 +3,7 @@ odoo.define('tfs_fixed_list_and_width.fields_width', function (require) {
 
 
     var ListRenderer = require('web.ListRenderer');
+    var colspan;
 
 
     ListRenderer.include({
@@ -28,7 +29,7 @@ odoo.define('tfs_fixed_list_and_width.fields_width', function (require) {
                         thresholdReached = true;
                     }
                     if (th.style.colspan){
-                        maxWidth = maxWidth * th.style.colspan/1.5
+                        colspan = true
                     }
                     th.style.maxWidth = `${maxWidth}px`;
                     columnWidths[index] = maxWidth;
@@ -140,9 +141,13 @@ odoo.define('tfs_fixed_list_and_width.fields_width', function (require) {
                     }
                 }
             });
-
             // Set the table layout to fixed
-            table.style.tableLayout = 'fixed';
+            if (colspan || this.state.context.tableLayout){
+                table.style.tableLayout = 'auto';
+            }else{
+                table.style.tableLayout = 'flex';
+            }
+
         },
 
         _computeDefaultWidths: function () {
@@ -175,8 +180,11 @@ odoo.define('tfs_fixed_list_and_width.fields_width', function (require) {
                 for (let i in this.columns) {
                     if (relativeWidths[i]) {
                         const th = this._getColumnHeader(this.columns[i]);
-    //                    th.style.width = (relativeWidths[i] / totalWidth * 100) + '%';
-                        th.style.width = '100px';
+                        if (totalWidth >= 7){
+                            th.style.width = '100px';
+                        }else{
+                            th.style.width = (relativeWidths[i] / totalWidth * 100) + '%';
+                        }
                     }
                 }
                 // Manualy assigns trash icon header width since it's not in the columns
