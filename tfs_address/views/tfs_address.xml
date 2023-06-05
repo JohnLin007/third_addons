@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_company_form_inherit" model="ir.ui.view">
+        <field name="name">rc.company.form.inherit</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@class='o_address_format']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            <xpath expr="//label[@for='street']" position="after">
+                 <div class="o_address_format">
+                    <field name="province_id" placeholder="省" class="o_address_city"/>
+                    <field name="city_id" class="o_address_state" placeholder="市" domain="[('province_id', '=', province_id)]"/>
+                    <field name="county_id" placeholder="区县" class="o_address_zip" domain="[('city_id', '=', city_id)]"/>
+                </div>
+                <field name="street" string="详细地址"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//span[@name='address_name']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            <xpath expr="//div[@class='o_address_format']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+
+            <xpath expr="//div[@class='o_address_format']" position="after">
+                <label for="street" string="地址"></label>
+                <div class="o_address_format">
+                    <field name="province_id" placeholder="省" class="o_address_city"/>
+                    <field name="city_id" class="o_address_state" placeholder="市" domain="[('province_id', '=', province_id)]"/>
+                    <field name="county_id" placeholder="区县" class="o_address_zip" domain="[('city_id', '=', city_id)]"/>
+                </div>
+                <field name="street" string="详细地址"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
